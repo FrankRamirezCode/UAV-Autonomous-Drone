@@ -1,1 +1,82 @@
-Our goal is to develop an autonomous delivery drone that will navigate its surroundings and complete deliveries with minimal or no human intervention. The drone is designed to receive target locations in the form of GPS or Cartesian coordinates, and by using Lidar sensors and an obstacle avoidance algorithm, it is programmed to deliver a payload to the destination, and then return to its starting point while utilizing LED lights on the drone to indicate the status of the delivery process. This project shows how modern technology can be combined and might lead to new ideas for creating better autonomous drones in the future.
+int maxTakeOffHeight = 1000;							//1000 cm
+int targetRelativeDegrees = 0;
+bool targetReached = false;
+bool homeReached = false;
+var HomeGPSCoords = 0;
+var targetGPSCoords = 0;
+
+
+HomeGPSCoords = GetCurrentGPS();
+
+for(int i = 0; i < maxTakeoffHeight; i++)
+{	
+	if(TopLidarReading() > 100)						//Checks area above drone for greater than 100 cm
+	{
+		takeoff(i);							//Calls "takeoff(i)" in MAVProxy, where i = 0 < i < maxTakeoffHeight
+	{
+	else
+	{
+		console.writeline("Obstacle Above - Mission ABORTED");
+		LandVehicle();							//Calls "mode land" in MAVProxy
+		return -1;
+	}
+}
+										//Vehicle In Air
+while(targetReached == false)
+{
+	GetCurrentGPS();
+	GetTargetRelativeDegreesAndMag(TargetGPSCoords);			//Gives target direction in degrees relative to drone (-180 - 180 degrees), and how far away sqrt(targetX^2+targetY^2)
+	console.writeline("X Meters Away From Target - X % Complete");
+	Get360Obstacles();							//Stores lidar values in ObstacleTable in 18 degree groups (20 areas to group)
+
+	FindMostOpen18DegreesFavoringTargetRelativeDegrees();			//Determine direction to travel based off ObstacleTable and targetRelativeDegrees value
+
+	FlyTowardsMostOpen18Degrees(50);					//Fly that direction 50 cm
+
+	if(currentGPS - targetGPS < 100)					//Within 100 cm or so sqrt(targetX^2+targetY^2)
+	{		
+		LandVehicle();							//Calls "mode land" in MAVProxy
+		console.writeline("Vehicle At TARGET Location");
+		DeliverPackage();						//Opens Actuator, then close actuator
+		console.writeline("Package DELIVERED");
+		targetReached = true;
+	}
+}
+
+target = HomeGPSCoords;								//New goal - Fly to HomeGPSCoords
+										//Repeated Code
+for(int i = 0; i < maxTakeoffHeight; i++)
+{	
+	if(TopLidarReading() > 100)						//Checks area above drone for greater than 100 cm
+	{
+		takeoff(i);							//Calls "takeoff(i)" in MAVProxy, where i = 0 < i < maxTakeoffHeight
+	{
+	else
+	{
+		console.writeline("Obstacle Above - Mission ABORTED");
+		LandVehicle();							//Calls "mode land" in MAVProxy
+		return -1;
+	}
+}
+
+while(homeReached == false)							
+{
+	GetCurrentGPS();
+	GetTargetRelativeDegrees(TargetGPSCoords);
+	console.writeline("X Meters Away From Home - X % Complete");
+
+	Get360Obstacles();
+
+	FindMostOpen18DegreesFavoringTargetRelativeDegrees();
+
+	FlyTowardsMostOpen18Degrees(50);
+
+	if(currentGPS - targetGPS < 100)
+	{		
+		LandVehicle();
+		console.writeline("Vehicle At HOME Location");
+		homeReached = true;
+	}
+}
+console.writeline("Mission COMPLETED");
+return 0;
