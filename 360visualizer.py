@@ -59,7 +59,6 @@
 #     laser.turnOff();
 # laser.disconnecting();
 # plt.close();
-
 import ydlidar
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -68,20 +67,23 @@ import sys
 
 RMAX = 16.0
 
+# Set up the polar plot
 fig = plt.figure()
 lidar_polar = plt.subplot(polar=True)
 lidar_polar.set_rmax(RMAX)
 lidar_polar.grid(True)
 
-# Detect port
+# Detect available ports
 ports = ydlidar.lidarPortList()
 if not ports:
     print("No YDLIDAR ports found!")
     sys.exit(1)
+
+# Prefer port with "ttyUSB", or just pick first available
 port = next((v for v in ports.values() if "ttyUSB" in v), list(ports.values())[0])
 print(f"Using port: {port}")
 
-# Set up lidar
+# Set up LIDAR
 laser = ydlidar.CYdLidar()
 laser.setlidaropt(ydlidar.LidarPropSerialPort, port)
 laser.setlidaropt(ydlidar.LidarPropSerialBaudrate, 230400)
@@ -94,10 +96,12 @@ laser.setlidaropt(ydlidar.LidarPropMaxAngle, 180.0)
 laser.setlidaropt(ydlidar.LidarPropMinAngle, -180.0)
 laser.setlidaropt(ydlidar.LidarPropMaxRange, RMAX)
 laser.setlidaropt(ydlidar.LidarPropMinRange, 0.02)
-laser.setlidaropt(ydlidar.LidarPropIntensity, True)
+# Correct typo version from SDK
+laser.setlidaropt(ydlidar.LidarPropIntenstiy, True)
 
 scan = ydlidar.LaserScan()
 
+# Live update function for animation
 def animate(num):
     if laser.doProcessSimple(scan):
         angle = [p.angle for p in scan.points]
@@ -108,18 +112,20 @@ def animate(num):
         lidar_polar.scatter(angle, ran, c=intensity, cmap='hsv', alpha=0.9)
         lidar_polar.grid(True)
 
+# Initialize and run laser
 if laser.initialize():
     if laser.turnOn():
+        print("YDLIDAR is running...")
         try:
             ani = animation.FuncAnimation(fig, animate, interval=50)
             plt.show()
         except KeyboardInterrupt:
-            pass
+            print("Interrupted.")
         finally:
             laser.turnOff()
             laser.disconnecting()
+            print("LIDAR stopped.")
     else:
         print("Failed to turn on YDLIDAR.")
 else:
     print("Failed to initialize YDLIDAR.")
-
