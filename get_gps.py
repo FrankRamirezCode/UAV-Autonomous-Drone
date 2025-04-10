@@ -1,5 +1,6 @@
 from pymavlink import mavutil
 import time
+import subprocess  # <-- Needed to launch the lidar script
 
 # Connect to Pixhawk (adjust port if needed)
 master = mavutil.mavlink_connection('/dev/ttyAMA0', baud=57600)
@@ -63,6 +64,14 @@ def takeoff(alt):
 
 takeoff(target_alt)
 
+# -----------------------------------------------
+# ✅ LAUNCH LIDAR AVOIDANCE SCRIPT HERE
+# This allows object avoidance to run in parallel
+# Make sure lidar_avoidance.py is in the same folder or use full path
+# -----------------------------------------------
+lidar_process = subprocess.Popen(['python3', 'lidar_avoidance.py'])
+print("LIDAR avoidance script started.")
+
 # Go to target location
 def goto_position_target_global_int(lat, lon, alt):
     print(f"Flying to {lat}, {lon}, {alt}m")
@@ -82,3 +91,11 @@ def goto_position_target_global_int(lat, lon, alt):
 
 goto_position_target_global_int(target_lat, target_lon, target_alt)
 print("Command sent.")
+
+# -----------------------------------------------
+# ✅ OPTIONAL: STOP LIDAR SCRIPT AFTER 30 SECONDS
+# You could replace this with position check instead
+# -----------------------------------------------
+time.sleep(30)
+lidar_process.terminate()
+print("LIDAR avoidance script terminated.")
