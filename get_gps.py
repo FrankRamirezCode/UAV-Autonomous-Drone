@@ -1,8 +1,10 @@
 from pymavlink import mavutil
 
 # Connect to MAVProxy via AMA0 serial port
-master = mavutil.mavlink_connection('/dev/ttyAMA0', baud=115200)
-
+master = mavutil.mavlink_connection('/dev/ttyAMA0', baud=57600)
+print("Obtaining Heartbeat")
+master.wait_heartbeat()
+print("Heartbeat recieved")
 # Wait for GPS data
 print("Waiting for GPS data...")
 while True:
