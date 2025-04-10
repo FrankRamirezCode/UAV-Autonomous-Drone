@@ -30,4 +30,4 @@ while True:
             lon = msg.lon / 1e7
             alt = msg.alt / 1000.0
             print(f"Lat: {lat}, Lon: {lon}, Alt: {alt} m")
-            break 
+            break
