@@ -22,7 +22,9 @@ while True:
 # Ask user for target
 target_lat = float(input("Enter target latitude: "))
 target_lon = float(input("Enter target longitude: "))
-target_alt = float(input("Enter target altitude (meters): "))
+# Set a default/fixed altitude (in meters)
+target_alt = 10  # <-- You can change this value later when you're ready to calculate it
+# target_alt = float(input("Enter target altitude (meters): "))
 
 # Set mode to GUIDED
 def set_mode(mode):
