@@ -1,7 +1,7 @@
 from pymavlink import mavutil
 
 # Connect to MAVProxy via AMA0 serial port
-master = mavutil.mavlink_connection('/dev/AMA0', baud=115200)
+master = mavutil.mavlink_connection('/dev/ttyAMA0', baud=115200)
 
 # Wait for GPS data
 print("Waiting for GPS data...")
